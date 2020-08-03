@@ -38,10 +38,10 @@ void setup() {
   connectToWifi();
 
   while (WiFiMulti.run() != WL_CONNECTED) {
-    Serial.println(F("Connecting to wifi..."));
+    Serial.print(F("."));
     delay(1000);
   }
-  Serial.println(F("Wifi connected"));
+  Serial.println(F("\nWifi connected"));
   Serial.print(F("Syncing time."));
   while (!waitForSync()) {
     Serial.print(F("."));
@@ -133,7 +133,7 @@ void loop() {
 }
 
 void connectToWifi() {
-  Serial.println(F("Connecting..."));
+  Serial.print(F("Connecting to WiFi"));
   WiFi.mode(WIFI_STA);
   WiFiMulti.addAP(ssid, pass);
 }
@@ -235,10 +235,10 @@ void initializeLights() {
   pixels.begin();
   pixels.clear();
   pixels.setBrightness(50);
-  pixels.setPixelColor(45, Color_IFR);
-  pixels.setPixelColor(46, Color_VFR);
-  pixels.setPixelColor(47, Color_MVFR);
-  pixels.setPixelColor(48, Color_LIFR);
+  pixels.setPixelColor(45, Color_VFR);
+  pixels.setPixelColor(46, Color_MVFR);
+  pixels.setPixelColor(47, Color_LIFR);
+  pixels.setPixelColor(48, Color_IFR);
   pixels.show();
   Serial.println(F("Lights initialized"));
 }
