@@ -8,8 +8,9 @@
 #include <ezTime.h>
 #include "arduino_secrets.h"
 
-#define PIN 5 // the pin your strip is connected to 
+#define PIN 5 // D1 the pin your strip is connected to 
 #define COUNT 49 // how many led's are on that strip  
+const int NIGHT = 4; // D2 This pin will be used for the on/off for nighttime
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(COUNT, PIN, NEO_GRB + NEO_KHZ800);
 uint32_t Color_IFR = pixels.Color(0, 255, 0);
@@ -22,25 +23,18 @@ char ssid[] = SECRET_SSID;
 char pass[] = SECRET_PASS;
 char server[] = "http://aerie.starfireaviation.com/weather/metars/atlanta?data=flight_category&data=observed";
 
+Timezone est;
+
 ESP8266WiFiMulti WiFiMulti;
 
 void setup() {
-
+  pinMode(NIGHT, INPUT);
   Serial.begin(500000);
   while (!Serial) {
     ;
   }
   Serial.println(F("\nStarting Sketch"));
-  digitalWrite(LED_BUILTIN, LOW);
-  pixels.begin();
-  pixels.clear();
-  pixels.setBrightness(50);
-  pixels.setPixelColor(45, Color_IFR);
-  pixels.setPixelColor(46, Color_VFR);
-  pixels.setPixelColor(47, Color_MVFR);
-  pixels.setPixelColor(48, Color_LIFR);
-  pixels.show();
-  Serial.println(F("Lights initialized"));
+  initializeLights();
   connectToWifi();
 
   while (WiFiMulti.run() != WL_CONNECTED) {
@@ -48,7 +42,13 @@ void setup() {
     delay(1000);
   }
   Serial.println(F("Wifi connected"));
-  waitForSync();
+  Serial.print(F("Syncing time."));
+  while (!waitForSync()) {
+    Serial.print(F("."));
+    delay(1000);
+  }
+  Serial.println();
+  est.setLocation(F("America/New_York"));
 }
 
 void loop() {
@@ -59,51 +59,63 @@ void loop() {
     return;
   }
   else {
+
     WiFiClient client;
     HTTPClient http;
     if (http.begin(client, server)) {  // HTTP
+      time_t currentTime = now();
+      Serial.println("New York Time:          " + est.dateTime(ISO8601));
+      Serial.println("Current UTC Time:     " + UTC.dateTime(ISO8601));
+      uint8_t hr = hour(est.now());
+      Serial.print("New York hour: " );
+      Serial.println(hr);
+      if ((hr > 21 || hr < 6) && !digitalRead(NIGHT)) {
+        Serial.print (F("Night Mode: "));
+        Serial.println(digitalRead(NIGHT));
+        Serial.println(F("Night mode is off and it is nighttime."));
+        pixels.clear();
+        pixels.show();
+      }
 
+      else {
+        Serial.print (F("Night Mode: "));
+        Serial.println(digitalRead(NIGHT));
+        Serial.println(F("[HTTP] GET..."));
+        // start connection and send HTTP header
+        int httpCode = http.GET();
 
-      Serial.println(F("[HTTP] GET..."));
-      // start connection and send HTTP header
-      int httpCode = http.GET();
+        // httpCode will be negative on error
+        if (httpCode > 0) {
+          Serial.printf("[HTTP] GET... code: %d\n", httpCode);
 
-      // httpCode will be negative on error
-      if (httpCode > 0) {
-        // HTTP header has been send and Server response header has been handled
-        Serial.printf("[HTTP] GET... code: %d\n", httpCode);
+          // file found at server
+          if (httpCode == HTTP_CODE_OK) { // || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
+            String payload = http.getString();
+            Serial.println(payload);
 
-        // file found at server
-        if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
-          String payload = http.getString();
-          Serial.println(payload);
+            StaticJsonDocument<2500> doc;
+            auto error = deserializeJson(doc, payload);
+            if (error) {
+              Serial.print(F("deserializeJson() failed with code "));
+              Serial.println(error.c_str());
+            } else {
 
-          StaticJsonDocument<2500> doc;
-          auto error = deserializeJson(doc, payload);
-          if (error) {
-            Serial.print(F("deserializeJson() failed with code "));
-            Serial.println(error.c_str());
-          } else {
-            String currentUTCTime = UTC.dateTime(ISO8601);
-            time_t currentTime = now();
-
-            for (JsonObject obj : doc.as<JsonArray>()) {
-              Serial.println(F("\nCurrent Time: "));
-              Serial.println(currentUTCTime);
-              Serial.println(currentTime);
-              String icao = obj["icao"];
-              String flight_category = obj["flight_category"];
-              String observed = obj["observed"];
-              unsigned long timeDifference  = timeDiff(observed, currentTime);
-              Serial.print(F("Difference: "));
-              Serial.println(timeDifference);
-              setLight(icao, flight_category, observed, timeDifference);
+              for (JsonObject obj : doc.as<JsonArray>()) {
+                String icao = obj["icao"];
+                String flight_category = obj["flight_category"];
+                String observed = obj["observed"];
+                unsigned long timeDifference  = timeDiff(observed, currentTime);
+                Serial.print(F("Difference: "));
+                Serial.println(timeDifference);
+                setLight(icao, flight_category, observed, timeDifference);
+              }
             }
           }
         }
-      } else {
-        Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
-        return;
+        else {
+          Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+          return;
+        }
       }
 
       http.end();
@@ -113,7 +125,8 @@ void loop() {
     }
   }
 
-  delay(590000);
+  //delay(590000); 9 minutes 50 seconds -ish
+  delay(30000);
   waitForSync();
   updateNTP();
   delay(10000);
@@ -215,4 +228,17 @@ void setLight(String icao, String flight_category, String observed, unsigned lon
   Serial.print(F("Observed: "));
   Serial.println(observed);
   pixels.show();
+}
+
+void initializeLights() {
+  digitalWrite(LED_BUILTIN, LOW);
+  pixels.begin();
+  pixels.clear();
+  pixels.setBrightness(50);
+  pixels.setPixelColor(45, Color_IFR);
+  pixels.setPixelColor(46, Color_VFR);
+  pixels.setPixelColor(47, Color_MVFR);
+  pixels.setPixelColor(48, Color_LIFR);
+  pixels.show();
+  Serial.println(F("Lights initialized"));
 }
