@@ -80,6 +80,7 @@ void loop() {
       else {
         Serial.print (F("Night Mode: "));
         Serial.println(digitalRead(NIGHT));
+        Serial.println(F("Night mode is on or it is daytime."));
         Serial.println(F("[HTTP] GET..."));
         // start connection and send HTTP header
         int httpCode = http.GET();
@@ -91,7 +92,7 @@ void loop() {
           // file found at server
           if (httpCode == HTTP_CODE_OK) { // || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
             String payload = http.getString();
-            Serial.println(payload);
+            //Serial.println(payload);
 
             StaticJsonDocument<2500> doc;
             auto error = deserializeJson(doc, payload);
@@ -99,7 +100,7 @@ void loop() {
               Serial.print(F("deserializeJson() failed with code "));
               Serial.println(error.c_str());
             } else {
-
+              initializeLights();
               for (JsonObject obj : doc.as<JsonArray>()) {
                 String icao = obj["icao"];
                 String flight_category = obj["flight_category"];
@@ -125,8 +126,7 @@ void loop() {
     }
   }
 
-  //delay(590000); 9 minutes 50 seconds -ish
-  delay(30000);
+  delay(590000); //9 minutes 50 seconds -ish
   waitForSync();
   updateNTP();
   delay(10000);
