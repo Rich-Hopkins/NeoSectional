@@ -10,7 +10,7 @@
 
 #define PIN 5 // D1 the pin your strip is connected to 
 #define COUNT 49 // how many led's are on that strip  
-const int NIGHT = 4; // D2 This pin will be used for the on/off for nighttime
+const int NIGHT = 16; // D2 This pin will be used for the on/off for nighttime
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(COUNT, PIN, NEO_GRB + NEO_KHZ800);
 uint32_t Color_IFR = pixels.Color(0, 255, 0);
@@ -34,6 +34,8 @@ void setup() {
     ;
   }
   Serial.println(F("\nStarting Sketch"));
+  pixels.clear();
+  pixels.show();
   initializeLights();
   connectToWifi();
 
@@ -69,17 +71,15 @@ void loop() {
       uint8_t hr = hour(est.now());
       Serial.print("New York hour: " );
       Serial.println(hr);
+      Serial.print (F("Night Mode: "));
+      Serial.println(digitalRead(NIGHT));
       if ((hr > 21 || hr < 6) && !digitalRead(NIGHT)) {
-        Serial.print (F("Night Mode: "));
-        Serial.println(digitalRead(NIGHT));
         Serial.println(F("Night mode is off and it is nighttime."));
         pixels.clear();
         pixels.show();
       }
 
       else {
-        Serial.print (F("Night Mode: "));
-        Serial.println(digitalRead(NIGHT));
         Serial.println(F("Night mode is on or it is daytime."));
         Serial.println(F("[HTTP] GET..."));
         // start connection and send HTTP header
