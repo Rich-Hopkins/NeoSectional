@@ -151,56 +151,57 @@ unsigned long timeDiff(String observed, time_t current) {
 
 void setLight(String icao, String flight_category, String observed, unsigned long timeDifference) {
   int pixel;
-  if (icao == "KATL") {
-    pixel = 20;
+  if (icao == "KCVC") {
+    pixel = 7;
   }
-  else if (icao == "KCCO") {
-    pixel = 16;
-  }
-  else if (icao == "KCNI") {
-    pixel = 0;
-  }
-  else if (icao == "KCTJ") {
-    pixel = 8;
-  }
-  else if (icao == "KCVC") {
-    pixel = 37;
-  }
-  else if (icao == "KFFC") {
-    pixel = 18;
-  }
-  else if (icao == "KFTY") {
-    pixel = 21;
-  }
-  else if (icao == "KGVL") {
-    pixel = 31;
-  }
-  else if (icao == "KHMP") {
-    pixel = 19;
-  }
-  else if (icao == "KLGC") {
-    pixel = 13;
-  }
-  else if (icao == "KLZU") {
-    pixel = 29;
-  }
-  else if (icao == "KMGE") {
-    pixel = 22;
-  }
-  else if (icao == "KPDK") {
+  else if (icao == "KATL") {
     pixel = 26;
   }
-  else if (icao == "KPUJ") {
-    pixel = 5;
+  else if (icao == "KCCO") {
+    pixel = 32;
   }
-  else if (icao == "KRYY") {
+  else if (icao == "KCNI") {
+    pixel = 48;
+  }
+  else if (icao == "KCTJ") {
+    pixel = 40;
+  }
+  
+  else if (icao == "KFFC") {
+    pixel = 30;
+  }
+  else if (icao == "KFTY") {
+    pixel = 24;
+  }
+  else if (icao == "KGVL") {
+    pixel = 14;
+  }
+  else if (icao == "KHMP") {
+    pixel = 28;
+  }
+  else if (icao == "KLGC") {
+    pixel = 35;
+  }
+  else if (icao == "KLZU") {
+    pixel = 17;
+  }
+  else if (icao == "KMGE") {
     pixel = 23;
   }
+  else if (icao == "KPDK") {
+    pixel = 20;
+  }
+  else if (icao == "KPUJ") {
+    pixel = 43;
+  }
+  else if (icao == "KRYY") {
+    pixel = 22;
+  }
   else if (icao == "KVPC") {
-    pixel = 3;
+    pixel = 45;
   }
   else if (icao == "KWDR") {
-    pixel = 34;
+    pixel = 11;
   }
 
   if (timeDifference > 7200) {
@@ -235,10 +236,10 @@ void initializeLights() {
   pixels.begin();
   pixels.clear();
   pixels.setBrightness(50);
-  pixels.setPixelColor(45, Color_VFR);
-  pixels.setPixelColor(46, Color_MVFR);
-  pixels.setPixelColor(47, Color_LIFR);
-  pixels.setPixelColor(48, Color_IFR);
+  pixels.setPixelColor(3, Color_VFR);
+  pixels.setPixelColor(2, Color_MVFR);
+  pixels.setPixelColor(1, Color_LIFR);
+  pixels.setPixelColor(0, Color_IFR);
   pixels.show();
   Serial.println(F("Lights initialized"));
 }
