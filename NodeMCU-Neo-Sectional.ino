@@ -112,8 +112,6 @@ void loop() {
               String flight_category = obj["flight_category"];
               String observed = obj["observed"];
               unsigned long timeDifference  = timeDiff(observed, currentTime);
-              Serial.print(F("Difference: "));
-              Serial.println(timeDifference);
               setLight(icao, flight_category, observed, timeDifference);
             }
           }
@@ -305,8 +303,11 @@ void setLight(String icao, String flight_category, String observed, unsigned lon
 
   Serial.print(F("Observed: "));
   Serial.println(observed);
+  Serial.print(F("Difference: "));
+  Serial.println(timeDifference);
   Serial.print(F("Condition: "));
   Serial.println(flight_category);
+  Serial.println();
   pixels.show();
 }
 
