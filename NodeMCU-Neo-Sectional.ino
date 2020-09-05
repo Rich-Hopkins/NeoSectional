@@ -6,7 +6,6 @@
 #include <ArduinoJson.h>
 #include <Adafruit_NeoPixel.h>
 #include <ezTime.h>
-#include "arduino_secrets.h"
 
 #define PIN 5     // D1 the pin your strip is connected to 
 #define COUNT 49  // how many led's are on that strip  
