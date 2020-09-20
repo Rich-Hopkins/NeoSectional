@@ -53,7 +53,6 @@ void setup() {
 void loop() {
   //wait for WiFi connection
   while (WiFi.status() != WL_CONNECTED) {
-    initializeLights();
     connectToWifi();
     delay(30000);
     return;
