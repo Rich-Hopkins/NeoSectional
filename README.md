@@ -7,7 +7,7 @@ The code uses the following hardware (see the Fritzing schematic in the repo):
 - [ESP8266 NodeMCU Arduino](https://smile.amazon.com/gp/product/B081CSJV2V) device
 - [Alitove WS2811 LED string](https://smile.amazon.com/gp/product/B01AG923GI)
 - Standard [5v regulator](https://smile.amazon.com/gp/product/B07BDFMQF6)
-- [9V power supply](https://smile.amazon.com/gp/product/B07JZ463K8 target="_blank")
+- [9V power supply](https://smile.amazon.com/gp/product/B07JZ463K8)
 - Resistors
 - Capacitors
 
