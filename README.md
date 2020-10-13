@@ -21,6 +21,9 @@ I used the following libraries:
   - This library helps with the LED string
 - [ESP8266 libraries](https://arduino-esp8266.readthedocs.io/en/latest/) for this particular Arduino device, which has built-in WiFi, and is cheap - the two major reasons for choosing it
 
+### Service
+-[Aerie](https://github.com/bsmichael/aerie) is the weather service provided by Brian Michael, which caches weather data from a more limited service
+
 ### How it Works
 The sketch starts out setting up the NeoPixels and the Wifi. It does a scan of WiFi and if there are open WiFi connections found, it ranks them by highest signal strength and connects to the strongest one. If it does not find an open WiFi, it looks for my phone hotspot and my home SSID. You can update to your own secure SSID/Password in the sketch.
 
